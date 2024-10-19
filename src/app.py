@@ -121,11 +121,8 @@ def main():
             st.caption(f"Character count: {len(legal_text)}")
     
             if st.button("Summarize", type="primary"):
-                if legal_text:
-                    tab1, tab2, tab3 = st.tabs(
-                        ["Key Legal Points", "Decisions and Judgments", "Additional Notes"]
-                    )
-    
+                if legal_text:    
+                    
                     # Generating summary using the prompt
                     summary_prompt = get_summary_prompt(legal_text, case_type, decision_focus)
                     summary_result = stream_response(
@@ -134,26 +131,8 @@ def main():
                         model_name,
                     )
 
-                    # Handle structured and unstructured responses
-                    if summary_result and isinstance(summary_result, dict):
-                        # Tab 1: Key Legal Points
-                        with tab1:
-                            st.subheader("Key Legal Points")
-                            st.write(summary_result.get("key_points", "No key points found."))
+                    # The result is already displayed by the streaming function, no need to display again.
 
-                        # Tab 2: Decisions and Judgments
-                        with tab2:
-                            st.subheader("Decisions and Judgments")
-                            st.write(summary_result.get("decisions", "No decisions found."))
-
-                        # Tab 3: Additional Notes
-                        with tab3:
-                            st.subheader("Additional Notes")
-                            st.write(summary_result.get("notes", "No additional notes found."))
-                    else:
-                        # If we only have plain text (unstructured)
-                        st.write(summary_result if summary_result else "Failed to generate a summary.")
-    
         elif task == "Drafting":
             # Input for creating a draft legal document
             st.text_area(
