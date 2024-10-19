@@ -47,6 +47,20 @@ def stp_page():
 def main():
     stp_page()
 
+    st.markdown("""
+    <style>
+    /* Style for the text area placeholder */
+    .custom-textarea .stTextArea textarea::placeholder {
+        color: #aaa;
+        opacity: 1; /* Fully opaque placeholder */
+    }
+    /* Style for the text area when user types */
+    .custom-textarea .stTextArea textarea:not(:placeholder-shown) {
+        color: #000; /* Change text color when typing */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Header section with title and subtitle
     st.markdown(
         """
@@ -87,23 +101,31 @@ def main():
             document_type = st.selectbox(
                 "Document Type", ["Contract", "Agreement", "Pleading", "Other"]
             )
+
+            st.markdown('<div class="custom-textarea">', unsafe_allow_html=True)
             template = st.text_area(
                 "Template (optional)", 
-                "Enter document structure or leave blank for default template", 
+                placeholder="Enter document structure or leave blank for default template", 
                 height=100
             )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('<div class="custom-textarea">', unsafe_allow_html=True)
             clauses = st.text_area(
                 "Legal Clauses (optional)", 
-                "Enter specific clauses to include, one per line", 
+                placeholder="Enter specific clauses to include, one per line", 
                 height=100
             ).splitlines()
+            st.markdown('</div>', unsafe_allow_html=True)
 
         elif task == "Legal Research":
+            st.markdown('<div class="custom-textarea">', unsafe_allow_html=True)
             research_query = st.text_area(
                 "Legal Query", 
                 "Enter the legal question or area of research", 
                 height=100
             )
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # Main container with border
     main_container = st.container(border=True)
@@ -113,11 +135,13 @@ def main():
         
         if task == "Summarization":
             # Input for the legal document text to summarize
+            st.markdown('<div class="custom-textarea">', unsafe_allow_html=True)
             legal_text = st.text_area(
                 "Legal Document Text",
-                "Enter the lengthy legal document here...",
+                placeholder="Enter the lengthy legal document here...",
                 height=300,
             )
+            st.markdown('</div>', unsafe_allow_html=True)
             st.caption(f"Character count: {len(legal_text)}")
     
             if st.button("Summarize", type="primary"):
@@ -125,13 +149,12 @@ def main():
                     
                     # Generating summary using the prompt
                     summary_prompt = get_summary_prompt(legal_text, case_type, decision_focus)
-                    summary_result = stream_response(
+                    stream_response(
                         [{"role": "user", "content": summary_prompt}],
                         main_container,
                         model_name,
                     )
 
-                    # The result is already displayed by the streaming function, no need to display again.
 
         elif task == "Drafting":
             # Input for creating a draft legal document
@@ -143,16 +166,12 @@ def main():
             if st.button("Generate Draft", type="primary"):
                 if document_type:
                     draft_prompt = get_draft_prompt(document_type, clauses, template)
-                    draft_result = stream_response(
+                    stream_response(
                         [{"role": "user", "content": draft_prompt}],
                         main_container,
                         model_name,
                     )
-    
-                    # Displaying the generated draft
-                    st.subheader(f"Draft {document_type}")
-                    st.write(draft_result)
-    
+
         elif task == "Legal Research":
             # Input for legal research query
             if st.button("Conduct Research", type="primary"):
